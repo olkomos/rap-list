@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎤 Diccionario Rap</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e12;
+    --bg-2: #12121a;
+    --bg-3: #16161f;
+    --border: #22222c;
+    --text: #e8e8ef;
+    --text-dim: #8a8a99;
+    --accent: #6c4cff;
+    --accent-2: #a99cff;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #1a1a24, #0e0e12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  header h1 { font-size: 1.75rem; }
+  .subtitle { color: var(--text-dim); margin-top: .25rem; font-size: .9rem; }
+
+  #search {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: .6rem 1rem;
+    border-radius: 8px;
+    font-size: .9rem;
+    min-width: 240px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  #search:focus { border-color: var(--accent); }
+
+  main {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 130px);
+  }
+
+  #sidebar {
+    border-right: 1px solid var(--border);
+    padding: 1.5rem;
+    background: var(--bg-2);
+  }
+
+  #sidebar h2 {
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  #list-menu { list-style: none; }
+
+  #list-menu li {
+    padding: .6rem .8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: .25rem;
+    transition: background .15s;
+    text-transform: capitalize;
+    font-size: .95rem;
+  }
+
+  #list-menu li:hover { background: #1e1e2a; }
+  #list-menu li.active { background: var(--accent); color: white; }
+
+  #content { padding: 2rem; max-width: 900px; width: 100%; }
+
+  #welcome { color: var(--text-dim); }
+
+  .entry {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    animation: fadeIn .3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: .75rem;
+  }
+
+  .entry-title { font-size: 1.15rem; font-weight: 700; }
+  .entry-artist { color: var(--accent-2); font-size: .9rem; margin-top: .15rem; }
+
+  .badge {
+    font-size: .7rem;
+    text-transform: uppercase;
+    padding: .25rem .6rem;
+    border-radius: 6px;
+    background: #2a2a3a;
+    color: #b8b8cc;
+    letter-spacing: .05em;
+    white-space: nowrap;
+  }
+
+  .quote {
+    border-left: 3px solid var(--accent);
+    padding: .5rem 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #d8d8e5;
+    background: #1a1a26;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .entry audio {
+    width: 100%;
+    margin-top: 1rem;
+    height: 40px;
+  }
+
+  .entry-body {
+    margin-top: 1rem;
+    color: #c8c8d8;
+    line-height: 1.6;
+  }
+
+  .entry-body h2,
+  .entry-body h3 {
+    margin-top: 1.25rem;
+    margin-bottom: .5rem;
+    color: var(--text);
+  }
+
+  .entry-body h2 { font-size: 1.1rem; }
+  .entry-body h3 { font-size: 1rem; }
+
+  .entry-body p { margin-bottom: .75rem; }
+  .entry-body ul, .entry-body ol { margin: .5rem 0 .75rem 1.5rem; }
+  .entry-body li { margin-bottom: .25rem; }
+  .entry-body strong { color: var(--text); }
+
+  .entry-body code {
+    background: var(--border);
+    padding: .1rem .4rem;
+    border-radius: 4px;
+    font-size: .9em;
+  }
+
+  .entry-body blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 1rem;
+    color: var(--text-dim);
+    margin: .75rem 0;
+  }
+
+  .loading { color: var(--text-dim); padding: 1rem 0; }
+  .error { color: #ff6b6b; padding: 1rem 0; }
+
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; }
+    #sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    #search { min-width: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🎤 Diccionario Rap</h1>
+    <p class="subtitle">Frases, referencias y barras explicadas</p>
+  </div>
+  <input id="search" type="search" placeholder="Buscar en las listas..." />
+</header>
+
+<main>
+  <aside id="sidebar">
+    <h2>Listas</h2>
+    <ul id="list-menu"></ul>
+  </aside>
+  <section id="content">
+    <div id="welcome">
+      <p class="loading">Cargando listas...</p>
+    </div>
+    <div id="entries"></div>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — edita estas dos líneas con tus datos de GitHub
+   ============================================================ */
+const GITHUB_USER  = 'TU_USUARIO';
+const GITHUB_REPO  = 'TU_REPO';
+const GITHUB_BRANCH = 'main';
+/* ============================================================ */
+
+const API   = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+const RAW   = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}`;
+const AUDIO_DIR = 'public-audio';
+
+const listMenu = document.getElementById('list-menu');
+const entriesEl = document.getElementById('entries');
+const welcomeEl = document.getElementById('welcome');
+const searchEl  = document.getElementById('search');
+
+let currentList = null;
+let currentEntries = [];
+let allLists = [];
+
+/* ---------- Mini parser YAML (solo claves simples) ---------- */
+function parseFrontmatter(raw) {
+  const match = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+  if (!match) return { data: {}, content: raw };
+
+  const data = {};
+  match[1].split('\n').forEach(line => {
+    const m = line.match(/^([a-zA-Z0-9_-]+)\s*:\s*(.*)$/);
+    if (!m) return;
+    let value = m[2].trim();
+    // quitar comillas
+    if ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    data[m[1]] = value;
+  });
+
+  return { data, content: match[2] };
+}
+
+/* ---------- Mini renderer Markdown ---------- */
+function renderMarkdown(md) {
+  if (!md) return '';
+  let html = md;
+
+  // bloques de código
+  html = html.replace(/```([\s\S]*?)```/g, (_, code) =>
+    `<pre><code>${escapeHtml(code.trim())}</code></pre>`);
+
+  // escapar HTML restante
+  html = escapeHtml(html);
+
+  // encabezados
+  html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.*)$/gm,  '<h2>$1</h2>');
+  html = html.replace(/^# (.*)$/gm,   '<h1>$1</h1>');
+
+  // bold / italic / code inline
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+
+  // blockquotes
+  html = html.replace(/^&gt; (.*)$/gm, '<blockquote>$1</blockquote>');
+
+  // listas
+  html = html.replace(/^\s*[-*] (.*)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>');
+  html = html.replace(/^\s*\d+\. (.*)$/gm, '<li>$1</li>');
+
+  // párrafos: bloques que no son tags
+  html = html.split(/\n{2,}/).map(block => {
+    const trimmed = block.trim();
+    if (!trimmed) return '';
+    if (/^<(h\d|ul|ol|li|pre|blockquote|p)/.test(trimmed)) return trimmed;
+    return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+  }).join('\n');
+
+  return html;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ---------- Cargar listas desde /public ---------- */
+async function loadLists() {
+  try {
+    const res = await fetch(`${API}/public?ref=${GITHUB_BRANCH}`);
+    if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
+    const items = await res.json();
+
+    allLists = items.filter(i => i.type === 'dir').map(i => i.name);
+
+    if (allLists.length === 0) {
+      listMenu.innerHTML = '<li style="color:#8a8a99;cursor:default">No hay listas aún</li>';
+      welcomeEl.innerHTML = '<p class="error">No se encontraron carpetas dentro de /public</p>';
+      return;
+    }
+
+    listMenu.innerHTML = '';
+    allLists.forEach(name => {
+      const li = document.createElement('li');
+      li.textContent = name.replace(/[-_]/g, ' ');
+      li.dataset.list = name;
+      li.addEventListener('click', () => selectList(name, li));
+      listMenu.appendChild(li);
+    });
+
+    welcomeEl.innerHTML = '<p>Selecciona una lista para empezar 👈</p>';
+    selectList(allLists[0], listMenu.firstChild);
+  } catch (err) {
+    welcomeEl.innerHTML = `<p class="error">Error cargando listas: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+/* ---------- Cargar entradas de una lista ---------- */
+async function selectList(name, li) {
+  currentList = name;
+  document.querySelectorAll('#list-menu li').forEach(el => el.classList.remove('active'));
+  if (li) li.classList.add('active');
+
+  welcomeEl.style.display = 'none';
+  entriesEl.innerHTML = '<p class="loading">Cargando entradas...</p>';
+
+  try {
+    const res = await fetch(`${API}/public/${name}?ref=${GITHUB_BRANCH}`);
+    if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
+    const files = await res.json();
+
+    const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md'));
+
+    const entries = await Promise.all(mdFiles.map(async file => {
+      const rawRes = await fetch(file.download_url);
+      const raw = await rawRes.text();
+      const { data, content } = parseFrontmatter(raw);
+      return {
+        id: file.name.replace(/\.md$/, ''),
+        idioma: data.idioma || '',
+        cancion: data.cancion || '',
+        artista: data.artista || '',
+        dice: data.dice || '',
+        audio: data.audio || '',
+        body: renderMarkdown(content)
+      };
+    }));
+
+    entries.sort((a, b) =>
+      (a.cancion || a.id).localeCompare(b.cancion || b.id));
+
+    currentEntries = entries;
+    applyFilter();
+  } catch (err) {
+    entriesEl.innerHTML = `<p class="error">Error cargando entradas: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+/* ---------- Filtro / búsqueda ---------- */
+function applyFilter() {
+  const q = searchEl.value.trim().toLowerCase();
+  let list = currentEntries;
+  if (q) {
+    list = list.filter(e =>
+      [e.cancion, e.artista, e.dice, e.idioma, e.id]
+        .join(' ').toLowerCase().includes(q)
+    );
+  }
+
+  if (list.length === 0) {
+    entriesEl.innerHTML = '<p class="loading">Sin resultados.</p>';
+    return;
+  }
+
+  entriesEl.innerHTML = list.map(renderEntry).join('');
+}
+
+/* ---------- Render de una entrada ---------- */
+function renderEntry(e) {
+  const audio = e.audio
+    ? `<audio controls preload="none" src="${RAW}/${AUDIO_DIR}/${encodeURIComponent(e.audio)}"></audio>`
+    : '';
+
+  const dice = e.dice
+    ? `<div class="quote">“${escapeHtml(e.dice)}”</div>`
+    : '';
+
+  return `
+    <article class="entry">
+      <div class="entry-header">
+        <div>
+          <div class="entry-title">${escapeHtml(e.cancion || e.id)}</div>
+          <div class="entry-artist">${escapeHtml(e.artista || '—')}</div>
+        </div>
+        ${e.idioma ? `<span class="badge">${escapeHtml(e.idioma)}</span>` : ''}
+      </div>
+      ${dice}
+      ${audio}
+      ${e.body ? `<div class="entry-body">${e.body}</div>` : ''}
+    </article>
+  `;
+}
+
+searchEl.addEventListener('input', applyFilter);
+loadLists();
+</script>
+
+</body>
+</html>
